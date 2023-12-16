@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch</title>
+  <style>
+    body {
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-image:url(https://t4.ftcdn.net/jpg/01/11/00/87/360_F_111008744_ovULjX0QKQkULQfXfCxAItZfZE6rOvg3.jpg) ;
+  background-size: cover;
+  background-position: center;
+}
+
+.stopwatch {
+  text-align: center;
+}
+
+.display {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.controls button {
+  font-size: 1em;
+  margin: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.controls button#lap {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+  </style>
+</head>
+<body>
+  <div class="stopwatch">
+    <div class="display">
+      <span id="display">00:00:00</span>
+    </div>
+    <div class="controls">
+      <button id="startPause" onclick="startPause()">Start</button>
+      <button id="reset" onclick="reset()">Reset</button>
+      <button id="lap" onclick="lap()">Lap</button>
+    </div>
+    <ul id="lapList"></ul>
+  </div>
+
+  <script>
+    let timer;
+let isRunning = false;
+let startTime;
+let lapCounter = 1;
+
+function startPause() {
+  const startPauseButton = document.getElementById('startPause');
+  if (isRunning) {
+    clearInterval(timer);
+    startPauseButton.textContent = 'Start';
+  } else {
+    startTime = new Date() - lapCounter * 1000;
+    timer = setInterval(updateDisplay, 1000);
+    startPauseButton.textContent = 'Pause';
+  }
+  isRunning = !isRunning;
+}
+
+function reset() {
+  clearInterval(timer);
+  document.getElementById('display').textContent = '00:00:00';
+  document.getElementById('startPause').textContent = 'Start';
+  isRunning = false;
+  lapCounter = 1;
+  document.getElementById('lapList').innerHTML = '';
+}
+
+function lap() {
+  if (isRunning) {
+    const lapTime = new Date() - startTime;
+    const formattedTime = formatTime(lapTime);
+    const lapList = document.getElementById('lapList');
+    const lapItem = document.createElement('li');
+    lapItem.textContent = `Lap ${lapCounter}: ${formattedTime}`;
+    lapList.appendChild(lapItem);
+    lapCounter++;
+  }
+}
+
+function updateDisplay() {
+  const currentTime = new Date() - startTime;
+  document.getElementById('display').textContent = formatTime(currentTime);
+}
+
+function formatTime(time) {
+  const date = new Date(time);
+  const hours = date.getUTCHours().toString().padStart(2, '0');
+  const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+}
+
+  </script>
+</body>
+</html>
