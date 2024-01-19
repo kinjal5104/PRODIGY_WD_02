@@ -6,106 +6,106 @@
   <title>Stopwatch</title>
   <style>
     body {
-  font-family: 'Arial', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
-  background-image:url(https://t4.ftcdn.net/jpg/01/11/00/87/360_F_111008744_ovULjX0QKQkULQfXfCxAItZfZE6rOvg3.jpg) ;
-  background-size: cover;
-  background-position: center;
-}
-
-.stopwatch {
-  text-align: center;
-}
-
-.display {
-  font-size: 2em;
-  margin-bottom: 20px;
-}
-
-.controls button {
-  font-size: 1em;
-  margin: 5px;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
-.controls button#lap {
-  background-color: #4caf50;
-  color: #fff;
-}
-
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      
+  
+      background-image:url(https://t4.ftcdn.net/jpg/01/11/00/87/360_F_111008744_ovULjX0QKQkULQfXfCxAItZfZE6rOvg3.jpg) ;
+    background-size: cover;
+      
+    }
+    #stopwatch {
+      font-size: 2em;
+    }
+    #controls {
+      margin-top: 20px;
+    }
+    button {
+      font-size: 1em;
+      margin: 5px;
+      padding: 10px;
+    }
   </style>
 </head>
 <body>
-  <div class="stopwatch">
-    <div class="display">
-      <span id="display">00:00:00</span>
-    </div>
-    <div class="controls">
-      <button id="startPause" onclick="startPause()">Start</button>
-      <button id="reset" onclick="reset()">Reset</button>
-      <button id="lap" onclick="lap()">Lap</button>
-    </div>
-    <ul id="lapList"></ul>
+  
+  <div id="stopwatch">00:00:00</div>
+  <div id="controls">
+    <button onclick="start()">Start</button>
+    <button onclick="pause()">Pause</button>
+    <button onclick="lap()">Lap</button>
+    <button onclick="reset()">Reset</button>
   </div>
+  <!-- Add laps container -->
+  <div id="laps"></div>
 
   <script>
     let timer;
-let isRunning = false;
-let startTime;
-let lapCounter = 1;
+    let isRunning = false;
+    let startTime;
+    let elapsedTime = 0;
+    let laps = [];
 
-function startPause() {
-  const startPauseButton = document.getElementById('startPause');
-  if (isRunning) {
-    clearInterval(timer);
-    startPauseButton.textContent = 'Start';
-  } else {
-    startTime = new Date() - lapCounter * 1000;
-    timer = setInterval(updateDisplay, 1000);
-    startPauseButton.textContent = 'Pause';
-  }
-  isRunning = !isRunning;
-}
+    function start() {
+      if (!isRunning) {
+        isRunning = true;
+        startTime = Date.now() - elapsedTime;
+        timer = setInterval(updateTime, 100);
+      }
+    }
 
-function reset() {
-  clearInterval(timer);
-  document.getElementById('display').textContent = '00:00:00';
-  document.getElementById('startPause').textContent = 'Start';
-  isRunning = false;
-  lapCounter = 1;
-  document.getElementById('lapList').innerHTML = '';
-}
+    function pause() {
+      if (isRunning) {
+        isRunning = false;
+        clearInterval(timer);
+        elapsedTime = Date.now() - startTime;
+      }
+    }
 
-function lap() {
-  if (isRunning) {
-    const lapTime = new Date() - startTime;
-    const formattedTime = formatTime(lapTime);
-    const lapList = document.getElementById('lapList');
-    const lapItem = document.createElement('li');
-    lapItem.textContent = `Lap ${lapCounter}: ${formattedTime}`;
-    lapList.appendChild(lapItem);
-    lapCounter++;
-  }
-}
+    function lap() {
+      if (isRunning) {
+        laps.push(elapsedTime);
+        updateLaps();
+      }
+    }
 
-function updateDisplay() {
-  const currentTime = new Date() - startTime;
-  document.getElementById('display').textContent = formatTime(currentTime);
-}
+    function reset() {
+      isRunning = false;
+      clearInterval(timer);
+      elapsedTime = 0;
+      laps = [];
+      updateStopwatch();
+      updateLaps();
+    }
 
-function formatTime(time) {
-  const date = new Date(time);
-  const hours = date.getUTCHours().toString().padStart(2, '0');
-  const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-  return `${hours}:${minutes}:${seconds}`;
-}
+    function updateTime() {
+      elapsedTime = Date.now() - startTime;
+      updateStopwatch();
+    }
 
+    function updateStopwatch() {
+      const time = new Date(elapsedTime);
+      const hours = time.getUTCHours().toString().padStart(2, '0');
+      const minutes = time.getUTCMinutes().toString().padStart(2, '0');
+      const seconds = time.getUTCSeconds().toString().padStart(2, '0');
+      document.getElementById('stopwatch').innerText = `${hours}:${minutes}:${seconds}`;
+    }
+
+    function updateLaps() {
+      const lapsContainer = document.getElementById('laps');
+      lapsContainer.innerHTML = '';
+      for (let i = 0; i < laps.length; i++) {
+        const lapTime = new Date(laps[i]);
+        const lapHours = lapTime.getUTCHours().toString().padStart(2, '0');
+        const lapMinutes = lapTime.getUTCMinutes().toString().padStart(2, '0');
+        const lapSeconds = lapTime.getUTCSeconds().toString().padStart(2, '0');
+        const lapText = `${lapHours}:${lapMinutes}:${lapSeconds}`;
+        const lapElement = document.createElement('div');
+        lapElement.innerText = `Lap ${i + 1}: ${lapText}`;
+        lapsContainer.appendChild(lapElement);
+      }
+    }
   </script>
 </body>
 </html>
